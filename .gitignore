@@ -19,3 +19,4 @@ htmlcov
 bower_components/
 node_modules/
 workdir/
+.idea

@@ -1,0 +1,26 @@
+{% load static cms_tags sekizai_tags %}
+{% addtoblock "js" %}<script src="{% static 'jquery/dist/jquery.js' %}" type="text/javascript"></script>{% endaddtoblock %}
+{% addtoblock "js" %}<script src="{% static 'bootstrap/dist/js/bootstrap.js' %}" type="text/javascript"></script>{% endaddtoblock %}
+<div id="cmsplugin_{{ instance.id }}" class="{{ instance.css_classes }}"{% if instance.inline_styles %} style="{{ inline_styles }}"{% endif %}>
+  <!-- Nav tabs -->
+  <ul class="nav nav-{{ panel.glossary.tab }}s" role="tablist">
+	{% for panel in instance.child_plugin_instances %}
+    <li role="presentation"{% if forloop.counter0 == 0 %} class="active"{% endif %}>
+      <a href="#cmsplugin_{{ instance.id }}_{{ forloop.counter0 }}" aria-controls="{{ panel.glossary.panel_type }}" role="tab" data-toggle="{{ panel.glossary.tab }}">
+        {{ panel.glossary.panel_title|safe }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+	{% for panel in instance.child_plugin_instances %}
+    <div role="tabpanel" class="tab-pane{% if forloop.counter0 == 0 %} active{% endif %}" id="cmsplugin_{{ instance.id }}_{{ forloop.counter0 }}">
+      {{ panel.glossary.panel_title|safe }}
+      {% for panel_child in panel.child_plugin_instances %}
+        {% render_plugin panel_child %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>

@@ -18,16 +18,15 @@ from cmsplugin_cascade.forms import ManageChildrenFormMixin
 from cmsplugin_cascade.mixins import ImagePropertyMixin
 from cmsplugin_cascade.widgets import NumberInputWidget, MultipleCascadingSizeWidget
 from cmsplugin_cascade.link.cms_plugins import TextLinkPlugin
+from . import settings, utils
 from .plugin_base import BootstrapPluginBase
-from .settings import CASCADE_BREAKPOINTS_LIST
 from .image import ImageForm
 from .picture import BootstrapPicturePlugin
-from . import utils
 
 
 class CarouselSlidesForm(ManageChildrenFormMixin, ModelForm):
     num_children = IntegerField(min_value=1, initial=1,
-        widget=NumberInputWidget(attrs={'size': '2', 'style': 'width: 4em;'}),
+        widget=NumberInputWidget(attrs={'size': '3', 'style': 'width: 5em !important;'}),
         label=_('Slides'),
         help_text=_('Number of slides for this carousel.'),
     )
@@ -39,7 +38,7 @@ class CarouselPlugin(BootstrapPluginBase):
     default_css_class = 'carousel'
     default_css_attributes = ('options',)
     parent_classes = ['BootstrapColumnPlugin']
-    render_template = 'cascade/bootstrap3/carousel.html'
+    render_template = 'cascade/bootstrap3/{}/carousel.html'
     default_inline_styles = {'overflow': 'hidden'}
     fields = ('num_children', 'glossary',)
     DEFAULT_CAROUSEL_ATTRIBUTES = {'data-ride': 'carousel'}
@@ -58,7 +57,8 @@ class CarouselPlugin(BootstrapPluginBase):
             help_text=_("Adjust interval for the carousel."),
         ),
         PartialFormField('container_max_heights',
-            MultipleCascadingSizeWidget(CASCADE_BREAKPOINTS_LIST, allowed_units=['px']),
+            MultipleCascadingSizeWidget(list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints']),
+            allowed_units=['px']),
             label=_("Carousel heights"),
             initial={'xs': '100px', 'sm': '150px', 'md': '200px', 'lg': '300px'},
             help_text=_("Heights of Carousel in pixels for distinct Bootstrap's breakpoints."),

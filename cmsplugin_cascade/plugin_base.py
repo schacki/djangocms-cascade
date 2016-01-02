@@ -9,14 +9,13 @@ from cms.plugin_pool import plugin_pool
 from cms.plugin_base import CMSPluginBaseMetaclass, CMSPluginBase
 from cms.utils.placeholder import get_placeholder_conf
 from cms.utils.compat.dj import is_installed
+from . import settings
 from .models_base import CascadeModelBase
 from .models import CascadeElement, SharableCascadeElement
 from .sharable.forms import SharableGlossaryMixin
 from .extra_fields.mixins import ExtraFieldsMixin
-from .mixins import TransparentMixin
 from .widgets import JSONMultiWidget
 from .render_template import RenderTemplateMixin
-from . import settings
 
 
 def create_proxy_model(name, model_mixins, base_model, attrs={}):
@@ -39,11 +38,11 @@ class CascadePluginBaseMetaclass(CMSPluginBaseMetaclass):
     by a user defined configuration, this meta-class conditionally inherits from additional mixin
     classes.
     """
-    plugins_with_extrafields = list(settings.CASCADE_PLUGINS_WITH_EXTRAFIELDS)
-    plugins_with_sharables = dict(settings.CASCADE_PLUGINS_WITH_SHARABLES)
+    plugins_with_extra_fields = list(settings.CMSPLUGIN_CASCADE['plugins_with_extra_fields'])
+    plugins_with_sharables = dict(settings.CMSPLUGIN_CASCADE['plugins_with_sharables'])
 
     def __new__(cls, name, bases, attrs):
-        if name in cls.plugins_with_extrafields:
+        if name in cls.plugins_with_extra_fields:
             ExtraFieldsMixin.media = media_property(ExtraFieldsMixin)
             bases = (ExtraFieldsMixin,) + bases
         if name in cls.plugins_with_sharables:
@@ -54,13 +53,13 @@ class CascadePluginBaseMetaclass(CMSPluginBaseMetaclass):
             base_model = SharableCascadeElement
         else:
             base_model = CascadeElement
-        if name in getattr(settings, 'CASCADE_PLUGINS_WITH_EXTRA_RENDER_TEMPLATES').keys():
+        if name in settings.CMSPLUGIN_CASCADE['plugins_with_extra_render_templates'].keys():
             RenderTemplateMixin.media = media_property(RenderTemplateMixin)
             bases = (RenderTemplateMixin,) + bases
         model_mixins = attrs.pop('model_mixins', ())
         if name == 'SegmentPlugin':
             # SegmentPlugin shall additionally inherit from configured mixin classes
-            model_mixins += tuple(import_string(mc[0]) for mc in settings.CASCADE_SEGMENTATION_MIXINS)
+            model_mixins += tuple(import_string(mc[0]) for mc in settings.CMSPLUGIN_CASCADE['segmentation_mixins'])
         attrs['model'] = create_proxy_model(name, model_mixins, base_model)
         if is_installed('reversion'):
             import reversion
@@ -102,7 +101,7 @@ class CascadePluginBase(six.with_metaclass(CascadePluginBaseMetaclass, CMSPlugin
             if (isinstance(p.parent_classes, (list, tuple)) and self.__class__.__name__ in p.parent_classes or
               p.parent_classes is None and issubclass(p, CascadePluginBase) or
               isinstance(self.alien_child_classes, (list, tuple)) and p.__name__ in self.alien_child_classes or
-              self.alien_child_classes is True and p.__name__ in settings.CASCADE_ALIEN_PLUGINS):
+              self.alien_child_classes is True and p.__name__ in settings.CMSPLUGIN_CASCADE['alien_plugins']):
                 child_classes.add(p.__name__)
         return tuple(child_classes)
 

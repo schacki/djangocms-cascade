@@ -21,7 +21,7 @@ from .panel import panel_heading_sizes, PanelTypeRenderer
 
 class AccordionForm(ManageChildrenFormMixin, ModelForm):
     num_children = IntegerField(min_value=1, initial=1,
-        widget=NumberInputWidget(attrs={'size': '3', 'style': 'width: 5em;'}),
+        widget=NumberInputWidget(attrs={'size': '3', 'style': 'width: 5em !important;'}),
         label=_("Panels"),
         help_text=_("Number of panels for this panel group."))
 
@@ -34,7 +34,7 @@ class BootstrapAccordionPlugin(TransparentMixin, BootstrapPluginBase):
     parent_classes = ('BootstrapColumnPlugin',)
     allow_children = True
     child_classes = None
-    render_template = 'cascade/bootstrap3/accordion.html'
+    render_template = 'cascade/bootstrap3/{}/accordion.html'
     fields = ('num_children', 'glossary',)
     glossary_fields = (
         PartialFormField('close_others',

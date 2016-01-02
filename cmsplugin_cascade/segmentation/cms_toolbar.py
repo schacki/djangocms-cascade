@@ -11,7 +11,7 @@ from cmsplugin_cascade import settings
 class SegmentationToolbar(CMSToolbar):
     def populate(self):
         menu = self.toolbar.get_or_create_menu('segmentation', _("Segmentation"))
-        for sgm in settings.CASCADE_SEGMENTATION_MIXINS:
+        for sgm in settings.CMSPLUGIN_CASCADE['segmentation_mixins']:
             SegmentationMixin = import_string(sgm[1])
             populate_handler = getattr(SegmentationMixin, 'populate_toolbar', None)
             if callable(populate_handler):
